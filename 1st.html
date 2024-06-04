@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Falling Balloons</title>
+    <link rel="stylesheet" href="design.css">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+    <div class="giftcontainer">
+        <div class="gift">
+            <input type="checkbox" id="click">
+            <label for="click" class="click"></label>
+            <div class="wishes hidden">
+                <img src="12.jpg" alt="Birthday Image" class="birthday-image hidden">
+                <div class="birthday-text hidden">Happy Birthday</div>
+                <div class="cake hidden"></div>
+            </div>
+            <div class="balloons-container hidden"></div>
+        </div>
+    </div>
+    <script>
+        document.getElementById("click").addEventListener("change", (event) => {
+            const content = document.querySelector('.wishes');
+            const balloonsContainer = document.querySelector('.balloons-container');
+            if (event.target.checked) {
+                content.classList.remove('hidden');
+                balloonsContainer.classList.remove('hidden');
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+                setTimeout(() => {
+                    document.querySelector('.birthday-image').classList.remove('hidden');
+                    document.querySelector('.birthday-text').classList.remove('hidden');
+                    setTimeout(() => {
+                        confetti({
+                            particleCount: 200,
+                            spread: 150,
+                            origin: { y: 0.6 }
+                        });
+                        createBalloons();
+                    }, 3000);
+                },);
+            } else {
+                content.classList.add('hidden');
+                balloonsContainer.classList.add('hidden');
+                document.querySelectorAll('.balloon').forEach(balloon => balloon.remove());
+            }
+        });
+
+        function createBalloons() {
+            const balloonsContainer = document.querySelector('.balloons-container');
+            for (let i = 0; i < 50; i++) {
+                const balloon = document.createElement('div');
+                balloon.classList.add('balloon', 'falling');
+                balloon.style.left = `${Math.random() * 100}%`;
+                balloon.style.animationDelay = `${Math.random() * 5}s`;
+                balloonsContainer.appendChild(balloon);
+            }
+        }
+
+        function respawnBalloon(balloon) {
+            balloon.style.top = '-100px';
+            balloon.style.left = `${Math.random() * 100}%`;
+            balloon.style.animationDelay = `${Math.random() * 5}s`;
+        }
+
+        document.querySelector('.balloons-container').addEventListener('animationend', (event) => {
+            if (event.target.classList.contains('balloon')) {
+                if (Math.random() > 0.5) {
+                    event.target.classList.remove('falling');
+                    event.target.classList.add('bottom');
+                } else {
+                    respawnBalloon(event.target);
+                }
+            }
+        });
+
+        let confettiActive = false;
+let confettiInterval;
+
+document.getElementById('click').addEventListener('click', () => {
+    if (!confettiActive) {
+        confettiActive = true;
+        document.getElementById('click').textContent = "wishes";
+        setTimeout(startConfetti, 1000); // Delay of 10 seconds
+    } else {
+        confettiActive = false;
+        document.getElementById('click').textContent = "Start Celebration";
+        stopConfetti();
+    }
+});
+
+function startConfetti() {
+    if (!confettiActive) return;
+    const duration = 100 * 1000; // 10 seconds
+    const end = Date.now() + duration;
+
+    confettiInterval = requestAnimationFrame(frame);
+
+    function frame() {
+        if (!confettiActive) return;
+        confetti({
+            particleCount: 3,
+            angle: 60,
+            spread: 200,
+            origin: { x: 0 }
+        });
+        confetti({
+            particleCount: 3,
+            angle: 120,
+            spread: 200,
+            origin: { x: 1 }
+        });
+
+        if (Date.now() < end) {
+            confettiInterval = requestAnimationFrame(frame);
+        } else {
+            confettiActive = false;
+            document.getElementById('startButton').textContent = "Start Celebration";
+        }
+    }
+}
+
+function stopConfetti() {
+    if (confettiInterval) {
+        cancelAnimationFrame(confettiInterval);
+    }
+}
+    </script>
+</body>
+</html>
